@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ja">
+{% load static %}
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <script type="text/javascript" src="{% static 'js/jquery-3.4.1.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/index.js' %}"></script>
+    <script type="text/javascript" charset="UTF-8" src="{% static 'js/csrf.js' %}"></script>
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+    <title>WordBattler4</title>
+</head>
+
+<body>
+    <header>
+        <div class="container-fluid bg-dark">
+            <dic class="row p-3">
+                <div class="col-12">
+                    <div class="display-4 text-light text-center"><strong>WordBattler4</strong></div>
+                </div>
+            </dic>
+        </div>
+    </header>
+    <main>
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <h3 class="card-header">遊び方</h3>
+                        <div class="card-body">
+                            <div class="card-text">①「お題」に対して「意味」の近い言葉を入力して、攻撃しよう！</div>
+                            <div class="card-text">②制限時間、指定されたターン数以内に敵を倒そう！</div>
+                            <div class="card-text">③ゲーム終了後は「ランキング」に自分の名前が追加されるよ！</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row-12 mt-4">
+                <div class="col text-center">
+                    <button class="btn btn-lg col-5 btn-primary" data-toggle="modal"
+                        data-target="#solo_btn">ソロモード</button>
+                    <button class="btn btn-lg col-5 btn-danger" id="multi_mode_btn" data-toggle="modal"
+                        data-target="#multi_btn">協力モード</button>
+                </div>
+            </div>
+            <div class="row-12 mt-1">
+                <div class="col text-center">
+                    <button class="btn col-10 btn-lg btn-secondary" data-toggle="modal"
+                        data-target="#view_btn">観戦モード</button>
+                </div>
+            </div>
+            <div class="row-12 mt-1">
+                <div class="col text-center">
+                    {% csrf_token %}
+                    <button id="ranking_btn" class="btn col-10 btn-lg btn-secondary">ランキング</button>
+                </div>
+            </div>
+        </div>
+        <!-- モーダルの設定 -->
+        <!-- ソロモード用 -->
+        <div class="modal fade" id="solo_btn" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">プレイヤー作成</h5>
+                    </div>
+                    <form>
+                        {% csrf_token %}
+                        <div class="modal-body">
+
+                            <input type="text" placeholder="プレイヤー名（20文字以内）" class="form-control"
+                                id="solo_player_name_input">
+
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">閉じる</button>
+                            <input type="submit" class="btn btn-danger" value="決定" id="solo_login"></button>
+                        </div><!-- /.modal-footer -->
+                    </form>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal-dialog -->
+        </div><!-- /.modal -->
+        <!-- 協力モード用 -->
+        <div class="modal fade" id="multi_btn" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">ルーム選択</h5>
+                    </div>
+                    <form>
+                        {% csrf_token %}
+                        <div class="modal-body">
+                            <select class="form-control mb-1" id="room_name">
+                                <option>room1</option>
+                                <option>room2</option>
+                                <option>room3</option>
+                            </select>
+                            <input type="text" placeholder="プレイヤー名（20文字以内）" class="form-control"
+                                id="multi_player_name_input">
+
+                        </div>
+                        <div class="modal-footer">
+                            <div id="multi_footer" class="text-danger"></div>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">閉じる</button>
+                            <input type="submit" class="btn btn-danger" value="決定" id="multi_login"></button>
+                        </div><!-- /.modal-footer -->
+                    </form>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal-dialog -->
+        </div><!-- /.modal -->
+        <!-- 観戦モード用 -->
+        <div class="modal fade" id="view_btn" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">ルーム選択</h5>
+                    </div>
+                    <form>
+                        {% csrf_token %}
+                        <div class="modal-body">
+                            <select class="form-control mb-1" id="view_name">
+                                <option>room1</option>
+                                <option>room2</option>
+                                <option>room3</option>
+                            </select>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">閉じる</button>
+                            <input type="submit" class="btn btn-danger" value="決定" id="view_login"></button>
+                        </div><!-- /.modal-footer -->
+                    </form>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal-dialog -->
+        </div><!-- /.modal -->
+    </main>
+</body>
+
+</html>

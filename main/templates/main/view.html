@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ja">
+{% load static %}
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <script type="text/javascript" src="{% static 'js/jquery-3.4.1.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/view.js' %}"></script>
+    <script type="text/javascript" charset="UTF-8" src="{% static 'js/csrf.js' %}"></script>
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+    <title>WordBattler4</title>
+</head>
+
+<body background="/media/back/sougen.png" style="background-size: cover;">
+    <header>
+        <div class="container-fluid bg-dark">
+            <dic class="row p-2">
+                <div class="col-12">
+                    <div class="display-4 text-light text-center"><strong>WordBattler4</strong>
+                    </div>
+                </div>
+                <div class="col-7">
+                    <h2 class="text-left text-danger" id="game_mode">{{mode}}</h2>
+                </div>
+                <div class="col-5">
+                    <h2 class="text-right text-danger">{{room_name}}</h2>
+                </div>
+            </dic>
+        </div>
+    </header>
+    <main>
+        <div class="contents">
+            <div class="enemy">
+                <div class="container-fluid">
+                    <div class="row mt-2">
+                        <div class="col-lg-3">
+                            <div class="card option">
+                                <div class="card-header text-center">
+                                    <h4 id="p1_name"></h4>
+                                    <h4><strong id="theme1"
+                                            class="card card-body col m-auto bg-success text-white"></strong></h4>
+                                </div>
+                                <div class="card-body" id="log1" style="overflow-y: scroll; height: 50vh;"></div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-6">
+                            <div class="enemy_info text-center">
+                                <img src="" id="enemy_img" class="col-12 col-lg-6">
+                                <meter id="enemy_hp" class="col-12" min="0" max="" low="" high="" optimum=""
+                                    value=""></meter>
+                            </div>
+                        </div>
+                        <div class="col-lg-3">
+                            <div class="card option">
+                                <div class="card-header text-center">
+                                    <h4 id="p2_name"></h4>
+                                    <h4><strong id="theme2"
+                                            class="card card-body col m-auto bg-success text-white"></strong></h4>
+                                </div>
+                                <div class="card-body" id="log2" style="overflow-y: scroll; height: 50vh;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container result_screen" style="position: fixed; top:30%; left:0%; right: 0%;">
+            <div class="row">
+                <div class="col">
+                    <div class="card">
+                        <h3 class="card-header text-center text-danger" id="result"></h3>
+                        <div class="card-body">
+                            <strong>
+                                <div class="display-3 text-center" id="score"></div>
+                            </strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <!-- 非表示部分 -->
+    <div class="invisible">
+        <div id="room_id">{{room_id}}</div>
+    </div>
+    <div class="p_effect">
+        <!-- 効果音 -->
+        <audio id="atack_sound" preload="auto">
+            <source src="{% static 'mp3/gun1.mp3' %}" type="audio/mp3">
+        </audio>
+        <!-- BGM -->
+        <audio id="battle_bgm" preload="auto">
+            <source src="{% static 'mp3/Crystal_Battle.mp3' %}" type="audio/mp3">
+        </audio>
+    </div>
+</body>
+
+</html>

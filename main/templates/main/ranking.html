@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ja">
+{% load static %}
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <script type="text/javascript" src="{% static 'js/jquery-3.4.1.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/ranking.js' %}"></script>
+    <script type="text/javascript" charset="UTF-8" src="{% static 'js/csrf.js' %}"></script>
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+    <title>WordBattler4</title>
+</head>
+
+<body>
+    <header>
+        <div class="container-fluid bg-dark">
+            <dic class="row p-3">
+                <div class="col-12">
+                    <div class="display-1 text-light text-center"><strong>WordBattler4</strong></div>
+                </div>
+            </dic>
+        </div>
+    </header>
+    <main>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12 col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="text-center"><strong>ソロモード</strong></h2>
+                        </div>
+
+                        <div class="card-body ranking_table" id="solo_ranking" style="overflow-y: scroll;">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center">順位</th>
+                                        <th class="text-center">名前</th>
+                                        <th class="text-center">スコア</th>
+                                        <th class="text-center">更新日</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for solo in solo_lists %}
+                                    <tr>
+                                        <td class="text-center">{{solo.3}}</td>
+                                        <td class="text-center">{{solo.0}}</td>
+                                        <td class="text-center">{{solo.1}}</td>
+                                        <td class="text-center">{{solo.2}}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="text-center"><strong>協力モード</strong></h2>
+                        </div>
+                        <div class="card-body ranking_table " id="solo_ranking" style="overflow-y: scroll;">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center">順位</th>
+                                        <th class="text-center">名前</th>
+                                        <th class="text-center">スコア</th>
+                                        <th class="text-center">更新日</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for multi in multi_lists %}
+                                    <tr>
+                                        <td class="text-center">{{multi.4}}</td>
+                                        <td class="text-center">{{multi.0}} & {{multi.1}}</td>
+                                        <td class="text-center">{{multi.2}}</td>
+                                        <td class="text-center">{{multi.3}}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="solo_num">{{lists|length}}</div>
+    </main>
+</body>
+
+</html>
