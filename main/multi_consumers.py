@@ -55,8 +55,8 @@ class ChatConsumer(WebsocketConsumer):
             id=self.stage_id).values()[0]["hp"]
         print("敵の体力：" + str(self.enemy_hp))
         term = []
-        term.append(str(Stage.objects.all().filter(
-            id=self.stage_id).values()[0]["time"])+"秒")
+        term.append(str(int(Stage.objects.all().filter(
+            id=self.stage_id).values()[0]["time"]/1.7))+"秒")
         term.append(str(Stage.objects.all().filter(
             id=self.stage_id).values()[0]["turn"])+"回")
         self.term = random.choice(term)

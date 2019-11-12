@@ -111,7 +111,7 @@ class ChatConsumer(WebsocketConsumer):
 
         self.accept()
         print("プレイヤーID："+str(self.player_id))
-        self.stage_id = 5
+        self.stage_id = 1
         print("ステージID："+str(self.stage_id))
         self.init()
         self.back_img = "back/sougen.png"
