@@ -1,11 +1,12 @@
 from channels.generic.websocket import WebsocketConsumer
 import json
 from asgiref.sync import async_to_sync
-from main.models import Player, Room, Stage, Ranking, Theme, Back
+from main.models import Player, Room, Stage, Ranking, Theme, Back, Effect
 import random
 from gensim.models import word2vec
 from threading import Thread
 import time
+import copy
 
 
 class ChatConsumer(WebsocketConsumer):
@@ -23,7 +24,7 @@ class ChatConsumer(WebsocketConsumer):
                 return self.results
 
     player_id = None
-    stage_id = None
+    stage_id = 1
     flag = False
     enemy_img = None
     enemy_hp = None
@@ -33,13 +34,18 @@ class ChatConsumer(WebsocketConsumer):
     damage = None
     score = 0
     theme = None
+    effect = None
     theme_list = list(Theme.objects.all().values("name"))
+    theme_list2 = copy.deepcopy(theme_list)
     # print(theme_list)
     model = W2V()
     time_limit = 0
 
     def init(self):
         self.flag = False
+        effect = random.choice(
+            list(Effect.objects.all().filter(level=5).values()))
+        self.effect = effect["img"]
         self.enemy_img = Stage.objects.all().filter(
             id=self.stage_id).values()[0]["enemy"]
         print("敵画像のパス：" + self.enemy_img)
@@ -55,7 +61,12 @@ class ChatConsumer(WebsocketConsumer):
             id=self.stage_id).values()[0]["turn"])+"回")
         self.term = random.choice(term)
         print("条件：" + str(self.term))
-        self.theme = random.choice(self.theme_list)["name"]
+        if len(self.theme_list) < 10:
+            self.theme_list = copy.deepcopy(self.theme_list2)
+        theme = random.choice(self.theme_list)
+        self.theme = theme["name"]
+        self.theme_list.remove(theme)
+
         print("お題："+self.theme)
         self.mode = "init"
         self.text = "敵画像をセットしました。"
@@ -114,9 +125,10 @@ class ChatConsumer(WebsocketConsumer):
         self.stage_id = 1
         print("ステージID："+str(self.stage_id))
         self.init()
+        print(self.theme_list)
         self.back_img = "back/sougen.png"
         data = {"enemy_img": self.enemy_img, "enemy_hp": self.enemy_hp,
-                "term": self.term, "mode": self.mode, "text": self.text, "damage": self.damage, "score": self.score, "theme": self.theme, "back": self.back_img}
+                "term": self.term, "mode": self.mode, "text": self.text, "damage": self.damage, "score": self.score, "theme": self.theme, "back": self.back_img, "effect": self.effect, "stage_id": self.stage_id}
         async_to_sync(self.channel_layer.group_send)(
             self.room_group_name,
             {
@@ -147,9 +159,26 @@ class ChatConsumer(WebsocketConsumer):
             self.mode = "end"
             self.record_score()
         elif text_data_json["mode"] == "play":
-            self.theme = random.choice(self.theme_list)["name"]
+            if len(self.theme_list) < 10:
+                self.theme_list = copy.deepcopy(self.theme_list2)
+            theme = random.choice(self.theme_list)
+            self.theme = theme["name"]
+            self.theme_list.remove(theme)
             damage = int(self.model.cal(
                 text_data_json["word"][1], text_data_json["word"][0]) * 100)
+            if damage >= 60:
+                effect = random.choice(
+                    list(Effect.objects.all().filter(level=2).values()))
+            elif damage > 0:
+                effect = random.choice(
+                    list(Effect.objects.all().filter(level=1).values()))
+            elif damage == 0:
+                effect = random.choice(
+                    list(Effect.objects.all().filter(level=4).values()))
+            elif damage < 0:
+                effect = random.choice(
+                    list(Effect.objects.all().filter(level=3).values()))
+            self.effect = effect["img"]
             print("敵に与えたダメージ：" + str(damage))
             print("敵の体力：" + str(self.enemy_hp))
             self.damage = damage
@@ -158,9 +187,10 @@ class ChatConsumer(WebsocketConsumer):
         elif text_data_json["mode"] == "next_stage":
             self.stage_id += 1
             self.init()
+
         # Send message to room group
         data = {"enemy_img": self.enemy_img, "enemy_hp": self.enemy_hp,
-                "term": self.term, "mode": self.mode, "text": self.text, "damage": self.damage, "score": self.score, "theme": self.theme, "back": self.back_img}
+                "term": self.term, "mode": self.mode, "text": self.text, "damage": self.damage, "score": self.score, "theme": self.theme, "back": self.back_img, "effect": self.effect, "stage_id": self.stage_id}
         print("メッセージを送信しました")
         async_to_sync(self.channel_layer.group_send)(
             self.room_group_name,

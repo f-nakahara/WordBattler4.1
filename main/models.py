@@ -41,6 +41,15 @@ class Stage(models.Model):
         return self.name
 
 
+class Effect(models.Model):
+    name = models.CharField(max_length=20)
+    img = models.ImageField(upload_to="effect")  # 攻撃エフェクトgif
+    level = models.IntegerField()  # エフェクトレベル（1～4）
+
+    def __str__(self):
+        return self.name
+
+
 class Ranking(models.Model):
     mode = models.CharField(max_length=10)  # solo , multi
     name1 = models.CharField(max_length=20, null=True, blank=True)  # プレイヤー名1

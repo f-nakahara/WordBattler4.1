@@ -1,7 +1,7 @@
 from channels.generic.websocket import WebsocketConsumer
 import json
 from asgiref.sync import async_to_sync
-from main.models import Player, Room, Stage, Ranking, Theme, Back
+from main.models import Player, Room, Stage, Ranking, Theme, Back, Effect
 import random
 from gensim.models import word2vec
 from threading import Thread
@@ -24,13 +24,14 @@ class ChatConsumer(WebsocketConsumer):
 
     player_id1 = None
     player_id2 = None
-    stage_id = None
+    stage_id = 1
     write_id = None
     flag = False
     enemy_img = None
     enemy_hp = None
     back_img = None
     term = None
+    effect = None
     text = None
     mode = None
     input_word = None
@@ -45,6 +46,9 @@ class ChatConsumer(WebsocketConsumer):
 
     def init(self):
         self.flag = False
+        effect = random.choice(
+            list(Effect.objects.all().filter(level=5).values()))
+        self.effect = effect["img"]
         self.enemy_img = Stage.objects.all().filter(
             id=self.stage_id).values()[0]["enemy"]
         print("敵画像のパス：" + self.enemy_img)
@@ -117,7 +121,7 @@ class ChatConsumer(WebsocketConsumer):
 
         self.accept()
         data = {"enemy_img": self.enemy_img, "enemy_hp": self.enemy_hp,
-                "term": self.term, "mode": self.mode, "text": self.text, "damage": self.damage, "score": self.score, "theme": self.theme, "back": self.back_img, "p1_id": self.player_id1, "p2_id": self.player_id2, "write_id": self.write_id, "input_word": self.input_word, "before_theme": self.before_theme}
+                "term": self.term, "mode": self.mode, "text": self.text, "damage": self.damage, "score": self.score, "theme": self.theme, "back": self.back_img, "p1_id": self.player_id1, "p2_id": self.player_id2, "write_id": self.write_id, "input_word": self.input_word, "before_theme": self.before_theme, "effect": self.effect, "stage_id": self.stage_id}
         async_to_sync(self.channel_layer.group_send)(
             self.room_group_name,
             {
@@ -149,6 +153,19 @@ class ChatConsumer(WebsocketConsumer):
             print("敵に与えたダメージ：" + str(damage))
             print("敵の体力：" + str(self.enemy_hp))
             self.damage = damage
+            if damage >= 60:
+                effect = random.choice(
+                    list(Effect.objects.all().filter(level=2).values()))
+            elif damage > 0:
+                effect = random.choice(
+                    list(Effect.objects.all().filter(level=1).values()))
+            elif damage == 0:
+                effect = random.choice(
+                    list(Effect.objects.all().filter(level=4).values()))
+            elif damage < 0:
+                effect = random.choice(
+                    list(Effect.objects.all().filter(level=3).values()))
+            self.effect = effect["img"]
             self.score += damage
             self.mode = "play"
             if self.enemy_hp <= 0:
@@ -169,7 +186,7 @@ class ChatConsumer(WebsocketConsumer):
             self.init()
         # Send message to room group
         data = {"enemy_img": self.enemy_img, "enemy_hp": self.enemy_hp,
-                "term": self.term, "mode": self.mode, "text": self.text, "damage": self.damage, "score": self.score, "theme": self.theme, "back": self.back_img, "p1_id": self.player_id1, "p2_id": self.player_id2, "write_id": self.write_id, "input_word": self.input_word, "before_theme": self.before_theme}
+                "term": self.term, "mode": self.mode, "text": self.text, "damage": self.damage, "score": self.score, "theme": self.theme, "back": self.back_img, "p1_id": self.player_id1, "p2_id": self.player_id2, "write_id": self.write_id, "input_word": self.input_word, "before_theme": self.before_theme, "effect": self.effect, "stage_id": self.stage_id}
         async_to_sync(self.channel_layer.group_send)(
             self.room_group_name,
             {

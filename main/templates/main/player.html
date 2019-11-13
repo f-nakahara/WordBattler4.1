@@ -8,6 +8,7 @@
     <script type="text/javascript" src="{% static 'js/jquery-3.4.1.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/bootstrap.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/player.js' %}"></script>
+
     <script type="text/javascript" charset="UTF-8" src="{% static 'js/csrf.js' %}"></script>
     <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
     <title>WordBattler4</title>
@@ -51,7 +52,11 @@
                         </div>
                         <div class="col-12 col-sm-6">
                             <div class="enemy_info text-center">
-                                <img src="" id="enemy_img" class="col-12 col-sm-6">
+                                <h2><strong class="text-danger">ステージ<span id="stage_id"></span></strong></h2>
+                                <img src="" id="enemy_img" class="col-12 col-sm-6 position-relative"
+                                    style="z-index: 0.1;">
+                                <img src="" style="z-index: 1; top:10%; left: 25%; right:0%;"
+                                    class="position-absolute col-6" id="effect">
 
                                 <h1><strong id="theme"
                                         class="card card-body col-12 col-sm-6 m-auto bg-success text-white"></strong>

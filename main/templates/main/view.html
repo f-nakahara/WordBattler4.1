@@ -47,7 +47,16 @@
                         </div>
                         <div class="col-12 col-lg-6">
                             <div class="enemy_info text-center">
+                                <h2><strong class="text-danger">ステージ<span id="stage_id"></span></strong></h2>
+                                <div class="card col-4">
+                                    <h4 class="card-header text-center term d-none d-sm-inline-block"></h4>
+                                    <div class="card-body text-center">
+                                        <h4 id="turn"></h4>
+                                    </div>
+                                </div>
                                 <img src="" id="enemy_img" class="col-12 col-lg-6">
+                                <img src="" style="z-index: 1; top:30%; left: 25%; right:0%;"
+                                    class="position-absolute col-6" id="effect">
                                 <meter id="enemy_hp" class="col-12" min="0" max="" low="" high="" optimum=""
                                     value=""></meter>
                             </div>
