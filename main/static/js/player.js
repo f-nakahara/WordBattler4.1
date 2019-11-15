@@ -83,7 +83,7 @@ function create_web_socket() {
                 $("#theme").text(theme)
                 if (game_flag) {
                     $("#effect").attr("src", effect)
-                    if (damage > 60) {
+                    if (damage >= 60) {
                         $("#log").append("<div class='card-text text-danger'>" + damage + "ダメージ与えた!！</div>")
                         $("#s-log").html("<div class='card-text text-danger'>" + damage + "ダメージ与えた!！</div>")
                     }
@@ -175,7 +175,7 @@ function create_web_socket() {
                 $("#theme").text(theme)
                 if (game_flag) {
                     $("#effect").attr("src", effect)
-                    if (damage > 60) {
+                    if (damage >= 60) {
                         $("#log").append("<div class='card-text text-danger'>" + damage + "ダメージ与えた!！</div>")
                         $("#s-log").html("<div class='card-text text-danger'>" + damage + "ダメージ与えた!！</div>")
                     }
