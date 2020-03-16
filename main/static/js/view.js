@@ -9,6 +9,9 @@ var turn;
 var game_flag = true;
 var score = 0
 var init_flag = true;
+var effect;
+var term;
+var stage_id;
 
 // ウェブソケットの立ち上げ
 function create_web_socket() {
@@ -55,11 +58,13 @@ function create_web_socket() {
 
             init(data);
             $("#word_input").focus()
+            init_flag = false
 
         }
         // ゲーム進行中
         else if ((data["data"]["mode"] == "play") | (data["data"]["mode"] == "clear")) {
             damage = data["data"]["damage"]
+            effect = "/media/" + data["data"]["effect"]
             if (game_flag)
                 score += damage
             if (init_flag) {
@@ -74,7 +79,7 @@ function create_web_socket() {
             before_theme = data["data"]["before_theme"]
             $("#theme1").text(p1_theme)
             $("#theme2").text(p2_theme)
-            if (data["data"]["term"].match(/回/)) {
+            if (term.match(/回/)) {
                 turn -= 1
                 $("#turn").text(turn + "回")
             }
@@ -85,6 +90,7 @@ function create_web_socket() {
                 log += "2"
             console.log(log)
             if (game_flag) {
+                $("#effect").attr("src", effect)
                 if (damage > 60)
                     $(log).append("<div class='card-text'>●お題：" + before_theme + "<br>　入力：" + input_word + "<br>" + "<span class='text-danger'>　" + damage + "ダメージ与えた!！</span></div>").trigger("create")
                 else if (damage > 0)
@@ -103,6 +109,7 @@ function create_web_socket() {
                 game_flag = false
             }
             if (data["data"]["mode"] == "clear") {
+                init_flag = true
                 $(".form-inline").hide()
                 $(".result_screen").fadeIn(1000)
                 get_score()
@@ -122,6 +129,8 @@ function init(data) {
     $(".btn").show()
     $(".contents").css("opacity", "1.0");
     $(".result_screen").hide()
+    effect = "/media/" + data["data"]["effect"]
+    stage_id = data["data"]["stage_id"]
     game_flag = true
     p1_id = data["data"]["p1_id"]
     p2_id = data["data"]["p2_id"]
@@ -138,6 +147,8 @@ function init(data) {
     $(".enemy_info").hide()
     $(".enemy_info").fadeIn(3000)
     $("#enemy_img").attr("src", enemy_img_path)
+    $("#stage_id").text(stage_id)
+    $("#effect").attr("src", effect)
     $("#theme1").text(p1_theme)
     $("#theme2").text(p2_theme)
     $("#turn").text(turn)
@@ -148,15 +159,16 @@ function init(data) {
         "low": enemy_hp / 5,
         "optimum": enemy_hp,
     });
+    term = data["data"]["term"]
     // ターン数
     if (data["data"]["term"].match(/回/)) {
-        // $(".term").text("残りターン数")
+        $(".term").text("残りターン数")
         turn = Number(data["data"]["term"].split("回")[0])
         $("#turn").text(turn + "回")
     }
     // 制限時間
     else {
-        // $(".term").text("制限時間")
+        $(".term").text("制限時間")
         turn = data["data"]["term"]
         $("#turn").text(turn)
     }

@@ -8,6 +8,9 @@ var clear_count = 0;
 var enemy_hp;   // 敵の体力
 var turn;   // 残り時間やターン数
 var score;
+var effect;
+var stage_id
+var term;
 
 // ウェブソケットの立ち上げ
 function create_web_socket() {
@@ -69,6 +72,8 @@ function create_web_socket() {
                 damage = data["data"]["damage"]
                 enemy_hp -= damage
                 theme = data["data"]["theme"]
+                effect = "/media/" + data["data"]["effect"]
+                console.log(effect)
                 if (data["data"]["term"].match(/回/)) {
                     if (game_flag) {
                         turn -= 1
@@ -77,7 +82,8 @@ function create_web_socket() {
                 }
                 $("#theme").text(theme)
                 if (game_flag) {
-                    if (damage > 60) {
+                    $("#effect").attr("src", effect)
+                    if (damage >= 60) {
                         $("#log").append("<div class='card-text text-danger'>" + damage + "ダメージ与えた!！</div>")
                         $("#s-log").html("<div class='card-text text-danger'>" + damage + "ダメージ与えた!！</div>")
                     }
@@ -158,8 +164,9 @@ function create_web_socket() {
                 // enemy_hp = data["data"]["enemy_hp"]
                 damage = data["data"]["damage"]
                 enemy_hp -= damage
+                effect = "/media/" + data["data"]["effect"]
                 theme = data["data"]["theme"][player_id.toString()]
-                if (data["data"]["term"].match(/回/)) {
+                if (term.match(/回/)) {
                     if (game_flag) {
                         turn -= 1
                         $("#turn").text(turn + "回")
@@ -167,7 +174,8 @@ function create_web_socket() {
                 }
                 $("#theme").text(theme)
                 if (game_flag) {
-                    if (damage > 60) {
+                    $("#effect").attr("src", effect)
+                    if (damage >= 60) {
                         $("#log").append("<div class='card-text text-danger'>" + damage + "ダメージ与えた!！</div>")
                         $("#s-log").html("<div class='card-text text-danger'>" + damage + "ダメージ与えた!！</div>")
                     }
@@ -254,7 +262,9 @@ function create_web_socket() {
 
 // 初期化（敵画像、ターン数、体力のセット）
 function init(data) {
+    effect = "/media/" + data["data"]["effect"]
     game_flag = true
+    stage_id = data["data"]["stage_id"]
     clear_count += 1
     $(".option").show()
     $(".form-inline").show()
@@ -262,14 +272,17 @@ function init(data) {
     enemy_hp = data["data"]["enemy_hp"]
     turn = data["data"]["turn"]
     theme = data["data"]["theme"]
+    term = data["data"]["term"]
     back = "/media/" + data["data"]["back"]
     if (mode == "multi") {
         theme = data["data"]["theme"][player_id.toString()]
     }
     $("body").attr("background", back)
     $(".enemy_info").hide()
-    $(".enemy_info").fadeIn(3000)
+    $(".enemy_info").fadeIn(2000)
+    $("#stage_id").text(stage_id)
     $("#enemy_img").attr("src", enemy_img_path)
+    $("#effect").attr("src", effect)
     $("#theme").text(theme)
     $("#turn").text(turn)
     $("#enemy_hp").attr({
@@ -339,6 +352,7 @@ $(window).on("beforeunload", function () {
         })
     }
 });
+
 $(function () {
     $(".result_screen").hide()
     $(".enemy_info").hide()

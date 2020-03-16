@@ -1,11 +1,12 @@
 from channels.generic.websocket import WebsocketConsumer
 import json
 from asgiref.sync import async_to_sync
-from main.models import Player, Room, Stage, Ranking, Theme, Back
+from main.models import Player, Room, Stage, Ranking, Theme, Back, Effect
 import random
 from gensim.models import word2vec
 from threading import Thread
 import time
+import copy
 
 
 class ChatConsumer(WebsocketConsumer):
@@ -24,7 +25,7 @@ class ChatConsumer(WebsocketConsumer):
     my_id = None
     player_id1 = None
     player_id2 = None
-    stage_id = None
+    stage_id = 1
     write_id = None
     flag = False
     enemy_img = None
@@ -36,16 +37,21 @@ class ChatConsumer(WebsocketConsumer):
     input_word = None
     damage = None
     score = 0
+    effect = None
     before_theme = None
     theme = {}
     game = False
     theme_list = list(Theme.objects.all().values("name"))
+    theme_list2 = copy.deepcopy(theme_list)
     # print(theme_list)
     model = W2V()
     time_limit = 0
 
     def init(self):
         self.flag = False
+        effect = random.choice(
+            list(Effect.objects.all().filter(level=5).values()))
+        self.effect = effect["img"]
         self.enemy_img = Stage.objects.all().filter(
             id=self.stage_id).values()[0]["enemy"]
         print("敵画像のパス：" + self.enemy_img)
@@ -55,16 +61,18 @@ class ChatConsumer(WebsocketConsumer):
             id=self.stage_id).values()[0]["hp"]
         print("敵の体力：" + str(self.enemy_hp))
         term = []
-        term.append(str(Stage.objects.all().filter(
-            id=self.stage_id).values()[0]["time"])+"秒")
+        term.append(str(int(Stage.objects.all().filter(
+            id=self.stage_id).values()[0]["time"]/1.7))+"秒")
         term.append(str(Stage.objects.all().filter(
             id=self.stage_id).values()[0]["turn"])+"回")
         self.term = random.choice(term)
         print("条件：" + str(self.term))
-        self.theme[str(self.player_id1)] = random.choice(
-            self.theme_list)["name"]
-        self.theme[str(self.player_id2)] = random.choice(
-            self.theme_list)["name"]
+        if len(self.theme_list) < 10:
+            self.theme_list = copy.deepcopy(self.theme_list2)
+        theme = random.choice(self.theme_list)
+        self.theme[str(self.player_id1)] = theme["name"]
+        theme = random.choice(self.theme_list)
+        self.theme[str(self.player_id2)] = theme["name"]
         print("お題："+str(self.theme))
         self.mode = "init"
         self.text = "敵画像をセットしました。"
@@ -131,9 +139,10 @@ class ChatConsumer(WebsocketConsumer):
             self.stage_id = 1
             print("ステージID："+str(self.stage_id))
             self.init()
+
             self.back_img = "back/sougen.png"
         data = {"enemy_img": self.enemy_img, "enemy_hp": self.enemy_hp,
-                "term": self.term, "mode": self.mode, "text": self.text, "damage": self.damage, "score": self.score, "theme": self.theme, "back": self.back_img, "p1_id": self.player_id1, "p2_id": self.player_id2, "write_id": self.write_id, "input_word": self.input_word, "before_theme": self.before_theme, "my_id": self.my_id}
+                "term": self.term, "mode": self.mode, "text": self.text, "damage": self.damage, "score": self.score, "theme": self.theme, "back": self.back_img, "p1_id": self.player_id1, "p2_id": self.player_id2, "write_id": self.write_id, "input_word": self.input_word, "before_theme": self.before_theme, "my_id": self.my_id, "effect": self.effect, "stage_id": self.stage_id}
         async_to_sync(self.channel_layer.group_send)(
             self.room_group_name,
             {
@@ -166,10 +175,25 @@ class ChatConsumer(WebsocketConsumer):
             self.record_score()
         elif text_data_json["mode"] == "play":
             self.before_theme = self.theme[str(text_data_json["player_id"])]
-            self.theme[str(text_data_json["player_id"])] = random.choice(
-                self.theme_list)["name"]
+            if len(self.theme_list) < 10:
+                self.theme_list = copy.deepcopy(self.theme_list2)
+            theme = random.choice(self.theme_list)
+            self.theme[str(text_data_json["player_id"])] = theme["name"]
             damage = int(self.model.cal(
                 text_data_json["word"][1], text_data_json["word"][0]) * 100)
+            if damage >= 60:
+                effect = random.choice(
+                    list(Effect.objects.all().filter(level=2).values()))
+            elif damage > 0:
+                effect = random.choice(
+                    list(Effect.objects.all().filter(level=1).values()))
+            elif damage == 0:
+                effect = random.choice(
+                    list(Effect.objects.all().filter(level=4).values()))
+            elif damage < 0:
+                effect = random.choice(
+                    list(Effect.objects.all().filter(level=3).values()))
+            self.effect = effect["img"]
             self.input_word = text_data_json["word"][0]
             self.write_id = text_data_json["player_id"]
             print("敵に与えたダメージ：" + str(damage))
@@ -182,7 +206,7 @@ class ChatConsumer(WebsocketConsumer):
             self.init()
         # Send message to room group
         data = {"enemy_img": self.enemy_img, "enemy_hp": self.enemy_hp,
-                "term": self.term, "mode": self.mode, "text": self.text, "damage": self.damage, "score": self.score, "theme": self.theme, "back": self.back_img, "p1_id": self.player_id1, "p2_id": self.player_id2, "write_id": self.write_id, "input_word": self.input_word, "before_theme": self.before_theme, "my_id": self.my_id}
+                "term": self.term, "mode": self.mode, "text": self.text, "damage": self.damage, "score": self.score, "theme": self.theme, "back": self.back_img, "p1_id": self.player_id1, "p2_id": self.player_id2, "write_id": self.write_id, "input_word": self.input_word, "before_theme": self.before_theme, "my_id": self.my_id, "effect": self.effect, "stage_id": self.stage_id}
         async_to_sync(self.channel_layer.group_send)(
             self.room_group_name,
             {
