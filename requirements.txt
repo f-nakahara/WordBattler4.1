@@ -26,3 +26,4 @@ sqlparse==0.3.0
 static3==0.7.0
 urllib3==1.25.6
 whitenoise==4.1.4
+daphne==2.4.1
